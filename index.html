@@ -146,98 +146,51 @@
   </div>
 
   <script>
-    // Countdown Ziel: 01.02.2030 00:00 in Europe/Berlin (inkl. Sommerzeit korrekt)
-    const TARGET_TZ = "Europe/Berlin";
-    const TARGET_UTC_MS = tzLocalToUtcMs(2030, 2, 1, 0, 0, 0, TARGET_TZ);
+  // Zielzeit: 01.02.2030 00:00 (CET, UTC+01:00)
+  const TARGET_MS = Date.parse("2030-02-01T00:00:00+01:00");
 
-    const elDays = document.getElementById("days");
-    const elHours = document.getElementById("hours");
-    const elMinutes = document.getElementById("minutes");
-    const elSeconds = document.getElementById("seconds");
-    const elDone = document.getElementById("done");
-    const elMeta = document.getElementById("meta");
+  const elDays = document.getElementById("days");
+  const elHours = document.getElementById("hours");
+  const elMinutes = document.getElementById("minutes");
+  const elSeconds = document.getElementById("seconds");
+  const elDone = document.getElementById("done");
+  const elMeta = document.getElementById("meta");
 
-    function pad2(n) { return String(n).padStart(2, "0"); }
+  function pad(n) {
+    return String(n).padStart(2, "0");
+  }
 
-    function tick() {
-      const now = Date.now();
-      let diffMs = TARGET_UTC_MS - now;
+  function tick() {
+    const now = Date.now();
+    let diff = TARGET_MS - now;
 
-      if (diffMs <= 0) {
-        elDays.textContent = "0";
-        elHours.textContent = "00";
-        elMinutes.textContent = "00";
-        elSeconds.textContent = "00";
-        elDone.style.display = "block";
-        elMeta.textContent = `Zeitzone: ${TARGET_TZ}`;
-        return;
-      }
-
-      const totalSeconds = Math.floor(diffMs / 1000);
-      const days = Math.floor(totalSeconds / 86400);
-      const hours = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      elDays.textContent = String(days);
-      elHours.textContent = pad2(hours);
-      elMinutes.textContent = pad2(minutes);
-      elSeconds.textContent = pad2(seconds);
-
-      elMeta.textContent = `Aktuelle Zeit (${TARGET_TZ}): ${formatNowInTZ(TARGET_TZ)}`;
+    if (diff <= 0) {
+      elDays.textContent = "0";
+      elHours.textContent = "00";
+      elMinutes.textContent = "00";
+      elSeconds.textContent = "00";
+      elDone.style.display = "block";
+      elMeta.textContent = "🎉 Ziel erreicht!";
+      return;
     }
 
-    // Start sofort und dann jede Sekunde (auch wenn Tab gewechselt wird)
-    tick();
-    setInterval(tick, 1000);
+    const totalSeconds = Math.floor(diff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
 
-    function formatNowInTZ(timeZone) {
-      return new Intl.DateTimeFormat("de-DE", {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hourCycle: "h23"
-      }).format(new Date());
-    }
+    elDays.textContent = days;
+    elHours.textContent = pad(hours);
+    elMinutes.textContent = pad(minutes);
+    elSeconds.textContent = pad(seconds);
 
-    // Umrechnung: "lokale Zeit in Zeitzone" -> UTC ms
-    function tzLocalToUtcMs(year, month, day, hour, minute, second, timeZone) {
-      const approxUtc = Date.UTC(year, month - 1, day, hour, minute, second);
-      const offsetMinutes = getTzOffsetMinutesAt(approxUtc, timeZone);
-      return approxUtc - offsetMinutes * 60 * 1000;
-    }
+    elMeta.textContent = "Ziel: 01.02.2030, 00:00 (CET)";
+  }
 
-    function getTzOffsetMinutesAt(utcMs, timeZone) {
-      const dtf = new Intl.DateTimeFormat("en-US", {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hourCycle: "h23"
-      });
+  tick();
+  setInterval(tick, 1000);
+</script>
 
-      const parts = dtf.formatToParts(new Date(utcMs));
-      const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
-
-      const asIfUtc = Date.UTC(
-        Number(map.year),
-        Number(map.month) - 1,
-        Number(map.day),
-        Number(map.hour),
-        Number(map.minute),
-        Number(map.second)
-      );
-
-      // positive Werte bedeuten: Zeitzone liegt vor UTC
-      return Math.round((asIfUtc - utcMs) / 60000);
-    }
-  </script>
 </body>
 </html>
