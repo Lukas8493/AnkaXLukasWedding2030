@@ -3,10 +3,186 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Meine Website</title>
+  <title>Countdown bis 01.02.2030</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .card {
+      text-align: center;
+      padding: 32px 28px;
+      border-radius: 16px;
+      border: 1px solid rgba(127,127,127,.35);
+      backdrop-filter: blur(6px);
+      max-width: 680px;
+      width: calc(100% - 32px);
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 700;
+      letter-spacing: .3px;
+    }
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .box {
+      border-radius: 14px;
+      border: 1px solid rgba(127,127,127,.35);
+      padding: 14px 10px;
+    }
+    .num {
+      font-size: clamp(26px, 5vw, 42px);
+      font-weight: 800;
+      line-height: 1.05;
+      font-variant-numeric: tabular-nums;
+    }
+    .lbl {
+      margin-top: 6px;
+      font-size: 12px;
+      opacity: .75;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+    .meta {
+      margin-top: 16px;
+      font-size: 13px;
+      opacity: .75;
+    }
+    .done {
+      margin-top: 18px;
+      font-size: 16px;
+      font-weight: 700;
+      display: none;
+    }
+    @media (max-width: 520px) {
+      .countdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
 </head>
 <body>
-  <h1>Hallo! 👋</h1>
-  <p>Meine kostenlose Website läuft über GitHub Pages.</p>
+  <main class="card" aria-live="polite">
+    <h1>Countdown bis 01.02.2030</h1>
+
+    <section class="countdown" aria-label="Countdown">
+      <div class="box">
+        <div class="num" id="days">—</div>
+        <div class="lbl">Tage</div>
+      </div>
+      <div class="box">
+        <div class="num" id="hours">—</div>
+        <div class="lbl">Stunden</div>
+      </div>
+      <div class="box">
+        <div class="num" id="minutes">—</div>
+        <div class="lbl">Minuten</div>
+      </div>
+      <div class="box">
+        <div class="num" id="seconds">—</div>
+        <div class="lbl">Sekunden</div>
+      </div>
+    </section>
+
+    <div class="done" id="done">✅ Ziel erreicht: 01.02.2030</div>
+    <div class="meta" id="meta"></div>
+  </main>
+
+  <script>
+    // Ziel: 01.02.2030 00:00 in Europe/Berlin (inkl. Sommerzeit korrekt)
+    const TARGET_TZ = "Europe/Berlin";
+    const target = tzDateToUtcMs(2030, 2, 1, 0, 0, 0, TARGET_TZ);
+
+    const elDays = document.getElementById("days");
+    const elHours = document.getElementById("hours");
+    const elMinutes = document.getElementById("minutes");
+    const elSeconds = document.getElementById("seconds");
+    const elDone = document.getElementById("done");
+    const elMeta = document.getElementById("meta");
+
+    function pad2(n) { return String(n).padStart(2, "0"); }
+
+    function update() {
+      const now = Date.now();
+      let diff = target - now;
+
+      if (diff <= 0) {
+        elDays.textContent = "0";
+        elHours.textContent = "00";
+        elMinutes.textContent = "00";
+        elSeconds.textContent = "00";
+        elDone.style.display = "block";
+        elMeta.textContent = `Zeitzone: ${TARGET_TZ}`;
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      elDays.textContent = String(days);
+      elHours.textContent = pad2(hours);
+      elMinutes.textContent = pad2(minutes);
+      elSeconds.textContent = pad2(seconds);
+
+      elMeta.textContent = `Zielzeit: 01.02.2030 00:00 (${TARGET_TZ})`;
+    }
+
+    update();
+    setInterval(update, 1000);
+
+    // --- Helper: Erzeuge UTC-Timestamp für eine "lokale" Zeit in bestimmter Zeitzone ---
+    // Methode: Bestimme Offset der Zeitzone zum gewünschten Zeitpunkt, dann korrigiere.
+    function tzDateToUtcMs(year, month, day, hour, minute, second, timeZone) {
+      // month: 1-12
+      const approxUtc = Date.UTC(year, month - 1, day, hour, minute, second);
+
+      // Offset in Minuten für die Zeitzone an diesem Zeitpunkt bestimmen
+      const offsetMinutes = getTimeZoneOffsetMinutes(approxUtc, timeZone);
+
+      // Wenn lokale Zeit = UTC + Offset => UTC = lokale Zeit - Offset
+      return approxUtc - offsetMinutes * 60 * 1000;
+    }
+
+    function getTimeZoneOffsetMinutes(utcMs, timeZone) {
+      // Formatiere den UTC-Zeitpunkt als Datum/Uhrzeit IN der Zielzeitzone
+      const dtf = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23"
+      });
+
+      const parts = dtf.formatToParts(new Date(utcMs));
+      const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+
+      // Interpretiere diese Zielzonen-Darstellung als wäre sie UTC -> ergibt "falsche" UTC,
+      // Differenz zu echter UTC ergibt den Offset.
+      const asIfUtc = Date.UTC(
+        Number(map.year),
+        Number(map.month) - 1,
+        Number(map.day),
+        Number(map.hour),
+        Number(map.minute),
+        Number(map.second)
+      );
+
+      return Math.round((asIfUtc - utcMs) / 60000);
+    }
+  </script>
 </body>
 </html>
+
