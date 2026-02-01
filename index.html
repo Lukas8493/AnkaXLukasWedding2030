@@ -4,96 +4,164 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Countdown bis 01.02.2030</title>
+
   <style>
     :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Vollbild-Hintergrundbild */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background-image: url("Mallorca.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transform: scale(1.03);
+      filter: saturate(1.05) contrast(1.02);
+      z-index: -2;
+    }
+
+    /* Overlay für Lesbarkeit */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.70) 70%);
+      z-index: -1;
+    }
+
+    /* Zentrierter Inhalt */
+    .wrap {
+      min-height: 100vh;
       display: grid;
       place-items: center;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      padding: 24px 16px;
     }
+
     .card {
+      width: min(880px, 100%);
       text-align: center;
       padding: 32px 28px;
-      border-radius: 16px;
-      border: 1px solid rgba(127,127,127,.35);
-      backdrop-filter: blur(6px);
-      max-width: 680px;
-      width: calc(100% - 32px);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
     }
+
     h1 {
-      margin: 0 0 14px;
-      font-size: clamp(20px, 3vw, 28px);
-      font-weight: 700;
-      letter-spacing: .3px;
+      margin: 0 0 10px;
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.3px;
     }
+
+    .subtitle {
+      margin: 0;
+      opacity: 0.85;
+      font-size: clamp(13px, 1.6vw, 16px);
+      line-height: 1.4;
+    }
+
     .countdown {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
-      margin-top: 18px;
+      margin-top: 22px;
     }
+
     .box {
-      border-radius: 14px;
-      border: 1px solid rgba(127,127,127,.35);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.20);
+      background: rgba(255,255,255,0.08);
       padding: 14px 10px;
     }
+
     .num {
-      font-size: clamp(26px, 5vw, 42px);
-      font-weight: 800;
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 900;
       line-height: 1.05;
       font-variant-numeric: tabular-nums;
+      text-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
+
     .lbl {
       margin-top: 6px;
       font-size: 12px;
-      opacity: .75;
-      letter-spacing: .6px;
+      opacity: 0.8;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
     }
+
     .meta {
       margin-top: 16px;
       font-size: 13px;
-      opacity: .75;
+      opacity: 0.8;
     }
+
     .done {
+      display: none;
       margin-top: 18px;
       font-size: 16px;
-      font-weight: 700;
-      display: none;
+      font-weight: 800;
     }
-    @media (max-width: 520px) {
+
+    footer {
+      margin-top: 18px;
+      font-size: 12px;
+      opacity: 0.65;
+    }
+
+    @media (max-width: 560px) {
       .countdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card { padding: 26px 18px; }
     }
   </style>
 </head>
+
 <body>
-  <main class="card" aria-live="polite">
-    <h1>Countdown bis 01.02.2030</h1>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="overlay" aria-hidden="true"></div>
 
-    <section class="countdown" aria-label="Countdown">
-      <div class="box">
-        <div class="num" id="days">—</div>
-        <div class="lbl">Tage</div>
-      </div>
-      <div class="box">
-        <div class="num" id="hours">—</div>
-        <div class="lbl">Stunden</div>
-      </div>
-      <div class="box">
-        <div class="num" id="minutes">—</div>
-        <div class="lbl">Minuten</div>
-      </div>
-      <div class="box">
-        <div class="num" id="seconds">—</div>
-        <div class="lbl">Sekunden</div>
-      </div>
-    </section>
+  <div class="wrap">
+    <main class="card" aria-live="polite">
+      <h1>Countdown bis 01.02.2030</h1>
+      <p class="subtitle">Zielzeit: 01.02.2030, 00:00 (Europe/Berlin)</p>
 
-    <div class="done" id="done">✅ Ziel erreicht: 01.02.2030</div>
-    <div class="meta" id="meta"></div>
-  </main>
+      <section class="countdown" aria-label="Countdown">
+        <div class="box">
+          <div class="num" id="days">—</div>
+          <div class="lbl">Tage</div>
+        </div>
+        <div class="box">
+          <div class="num" id="hours">—</div>
+          <div class="lbl">Stunden</div>
+        </div>
+        <div class="box">
+          <div class="num" id="minutes">—</div>
+          <div class="lbl">Minuten</div>
+        </div>
+        <div class="box">
+          <div class="num" id="seconds">—</div>
+          <div class="lbl">Sekunden</div>
+        </div>
+      </section>
+
+      <div class="done" id="done">✅ Ziel erreicht: 01.02.2030</div>
+      <div class="meta" id="meta"></div>
+
+      <footer>Hintergrundbild: Mallorca.jpg</footer>
+    </main>
+  </div>
 
   <script>
     // Ziel: 01.02.2030 00:00 in Europe/Berlin (inkl. Sommerzeit korrekt)
@@ -134,27 +202,34 @@
       elMinutes.textContent = pad2(minutes);
       elSeconds.textContent = pad2(seconds);
 
-      elMeta.textContent = `Zielzeit: 01.02.2030 00:00 (${TARGET_TZ})`;
+      elMeta.textContent = `Aktuelle Zeit: ${formatNowInTZ(TARGET_TZ)} • Zeitzone: ${TARGET_TZ}`;
     }
 
     update();
     setInterval(update, 1000);
 
-    // --- Helper: Erzeuge UTC-Timestamp für eine "lokale" Zeit in bestimmter Zeitzone ---
-    // Methode: Bestimme Offset der Zeitzone zum gewünschten Zeitpunkt, dann korrigiere.
+    function formatNowInTZ(timeZone) {
+      const dtf = new Intl.DateTimeFormat("de-DE", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23"
+      });
+      return dtf.format(new Date());
+    }
+
+    // --- Helper: UTC-Timestamp für eine "lokale" Zeit in bestimmter Zeitzone ---
     function tzDateToUtcMs(year, month, day, hour, minute, second, timeZone) {
-      // month: 1-12
       const approxUtc = Date.UTC(year, month - 1, day, hour, minute, second);
-
-      // Offset in Minuten für die Zeitzone an diesem Zeitpunkt bestimmen
       const offsetMinutes = getTimeZoneOffsetMinutes(approxUtc, timeZone);
-
-      // Wenn lokale Zeit = UTC + Offset => UTC = lokale Zeit - Offset
       return approxUtc - offsetMinutes * 60 * 1000;
     }
 
     function getTimeZoneOffsetMinutes(utcMs, timeZone) {
-      // Formatiere den UTC-Zeitpunkt als Datum/Uhrzeit IN der Zielzeitzone
       const dtf = new Intl.DateTimeFormat("en-US", {
         timeZone,
         year: "numeric",
@@ -169,8 +244,6 @@
       const parts = dtf.formatToParts(new Date(utcMs));
       const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
 
-      // Interpretiere diese Zielzonen-Darstellung als wäre sie UTC -> ergibt "falsche" UTC,
-      // Differenz zu echter UTC ergibt den Offset.
       const asIfUtc = Date.UTC(
         Number(map.year),
         Number(map.month) - 1,
@@ -185,4 +258,3 @@
   </script>
 </body>
 </html>
-
